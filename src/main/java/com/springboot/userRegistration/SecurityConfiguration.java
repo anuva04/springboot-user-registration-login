@@ -20,6 +20,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
+    private CustomLoginSucessHandler sucessHandler;
+
+    @Autowired
     private DataSource dataSource;
 
     @Value("${spring.queries.users-query}")
@@ -37,19 +40,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                // URL matching for accessibility
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/register").permitAll()
                 .antMatchers("/home/**").hasAnyAuthority("SUPER_USER", "ADMIN_USER", "SITE_USER")
+                .antMatchers("/admin/**").hasAnyAuthority("SUPER_USER", "ADMIN_USER")
                 .anyRequest().authenticated()
                 .and()
+                // form login
                 .csrf().disable().formLogin()
                 .loginPage("/login")
                 .failureUrl("/login?error=true")
-                .defaultSuccessUrl("/home")
+                .successHandler(sucessHandler)
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .and()
+                // logout
                 .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
