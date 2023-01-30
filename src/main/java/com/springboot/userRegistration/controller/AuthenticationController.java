@@ -14,6 +14,7 @@ import com.springboot.userRegistration.model.User;
 
 import javax.validation.Valid;
 
+// Made by Giri Sharan
 @Controller
 public class AuthenticationController {
     @Autowired
